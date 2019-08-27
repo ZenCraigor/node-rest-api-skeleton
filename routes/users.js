@@ -4,10 +4,21 @@ const router = express.Router()
 // Load the MySQL pool connection
 const pool = require('../util/database');
 
+// ROUTES
+router.get('/',             getAllUsers);
+router.get('/:username',    getUserByUsername);
+router.get('/id/:id',       getUserByID);
+router.get('/email/:email', getUserByEmail);
 
+router.post('/users',       addUser);
+router.put('/users/:id',    updateUserByID);
+router.delete('/users/:id', deleteUserByID);
+
+
+// ROUTE DEFS
 
 // Display all users
-router.get('/', (req, res) => {
+function getAllUsers(req, res) {
     pool.query('SELECT * FROM users', (error, result) => {
         if (error) return console.log(`Error: ${error}`);
 
@@ -20,10 +31,10 @@ router.get('/', (req, res) => {
 
         res.send(userList);
     });
-});
+}
 
 // Display a single user by ID
-router.get('/id/:id', (req, res) => {
+function getUserByID(req, res) {
     const id = req.params.id;
     pool.query('SELECT * FROM users WHERE id = ?', id, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
@@ -35,10 +46,10 @@ router.get('/id/:id', (req, res) => {
             res.end(`No user with id ${id}`);
         }
     });       
-});
+}
 
 // Display a single user by username
-router.get('/:username', (req, res) => {
+function getUserByUsername(req, res) {
     const username = req.params.username;
     pool.query('SELECT * FROM users WHERE username = ?', username, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
@@ -50,10 +61,10 @@ router.get('/:username', (req, res) => {
             res.end(`No user with username ${username}`);
         }
     });       
-});
+}
 
 // Display a single user by email address
-router.get('/email/:email', (req, res) => {
+function getUserByEmail(req, res) {
     const email = req.params.email;
     pool.query('SELECT * FROM users WHERE email = ?', email, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
@@ -65,36 +76,36 @@ router.get('/email/:email', (req, res) => {
             res.end(`No user with email ${email}`);
         }
     });       
-});
+}
 
 // Add a new user
-router.post('/users', (req, res) => {
+function addUser(req, res) {
     pool.query('INSERT INTO users SET ?', res.body, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
         res.status(201).send(`User added with ID: ${result.insertId}`);
     });
-});
+}
 
 // Update an existing user
-router.put('/users/:id', (req, res) => {
+function updateUserByID(req, res) {
     const id = req.params.id;
 
     pool.query('UPDATE users SET ? WHERE id = ?', [req.body, id], (error, result) => {
         if (error) return console.log(`Error: ${error}`);
         res.send('User updated successfully.');
     });
-});
+}
 
 
 // Delete a user by ID
-router.delete('/users/:id', (req, res) => {
+function deleteUserByID(req, res) {
     const id = req.params.id;
 
     pool.query('DELETE FROM users WHERE id = ?', id, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
         res.send('User deleted.');
     });
-});
+}
 
 
 // Export the router

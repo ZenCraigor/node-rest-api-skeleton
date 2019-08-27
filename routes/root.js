@@ -1,19 +1,29 @@
 const express = require('express')
 const router = express.Router()
 
+// ROUTES
+router.get('/',  getHomePage);
+router.get('/authenticate', authenticate);
+
+
+//ROUTE DEFS
+
 // Home page -- /
-router.get('/', (req, res) => {
+function getHomePage(req, res) {
     var date = new Date()
     var now = date.getTime()
     res.send('Node.js and Express REST API - ' + now)
-})
+}
 
-// authentication
-router.get('/authenticate', (req, res) => {
+// Authentication
+function authenticate(req, res) {
     var date = new Date()
     var now = date.getTime()
-    res.send('Here\' where you\d get logged in - ' + now)
-})
+    res.send('Here\'s where you\'d get logged in - ' + now)
+}
+
+
+
 
 
 // Export the router
