@@ -80,7 +80,7 @@ function getUserByEmail(req, res) {
 
 // Add a new user
 function addUser(req, res) {
-    pool.query('INSERT INTO users SET ?', res.body, (error, result) => {
+    pool.query('INSERT INTO users SET ?', req.body, (error, result) => {
         if (error) return console.log(`Error: ${error}`);
         res.status(201).send(`User added with ID: ${result.insertId}`);
     });
