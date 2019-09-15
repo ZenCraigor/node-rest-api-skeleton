@@ -1,35 +1,30 @@
-const jwt    = require('jsonwebtoken');
-const conf = require('../util/config');
+const jwt  = require('jsonwebtoken');
+const conf = require('./config');
 
-
-
-function(req, res, next) {
+function authorize(req, res, next) {
 
 	// check header or url parameters or post parameters for token
-	var token = req.headers['access-token'];
-
+	var token = req.headers['api-jwt'];
+	
 	// decode token
 	if (token) {
-		// verifies secret and checks exp
-		jwt.verify(token, app.get('Secret'), (err, decoded) => {      
+		// verifies secret and expiration
+		jwt.verify(token, conf.secret, (err, decoded) => {
 			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.' });    
+				return res.json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
-				// if everything is good, save to request for use in other routes
-				req.decoded = decoded;    
+				// save to request for use in other routes
+				req.jwt = decoded;
 				next();
 			}
 		});
 
 	} else {
-
-		// if there is no token
-		// return an error
-		return res.status(403).send({ 
-			message: 'No token provided.' 
-		});
-
+		// if there is no token set req.jwt.role to "anon"
+		// anonymous requests are accepted by public APIs
+		req.jwt = {role: 'anon'};
+		next();
 	}
 }
 
-exports.auth;
+module.exports = authorize;

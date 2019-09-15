@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const authRole = require('../util/auth_role');
 
 // Encryption lib for storing/verifying passwords
 const bcrypt = require('bcrypt');
@@ -8,14 +9,14 @@ const bcrypt = require('bcrypt');
 const pool = require('../util/database');
 
 // ROUTES
-router.get('/',             getAllUsers);
-router.get('/:username',    getUserByUsername);
-router.get('/id/:id',       getUserByID);
-router.get('/email/:email', getUserByEmail);
+router.get('/',             authRole(['admin']), getAllUsers);
+router.get('/:username',    authRole(['mgr']), getUserByUsername);
+router.get('/id/:id',       authRole(['mgr']), getUserByID);
+router.get('/email/:email', authRole(['mgr']), getUserByEmail);
 
-router.post('/',       addUser);
-router.put('/:id',    updateUserByID);
-router.delete('/:id', deleteUserByID);
+router.post('/',      authRole(['admin']), addUser);
+router.put('/:id',    authRole(['admin']), updateUserByID);
+router.delete('/:id', authRole(['admin']), deleteUserByID);
 
 
 // ROUTE DEFS
