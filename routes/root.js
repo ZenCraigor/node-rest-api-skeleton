@@ -3,6 +3,9 @@ const conf = require('../util/config');
 const express = require('express')
 const router = express.Router()
 
+// Encryption lib for storing/verifying passwords
+const bcrypt = require('bcrypt');
+
 // Load the MySQL pool connection
 const pool = require('../util/database');
 
@@ -10,7 +13,7 @@ const pool = require('../util/database');
 router.get('/',  getHomePage);
 router.get('/auth',  showAuth);
 
-router.post('/authenticate', authenticate);
+router.post('/authenticate', login);
 
 
 //ROUTE DEFS
@@ -38,15 +41,15 @@ function showAuth(req, res) {
 		}
 	})
 
-	console.log('authorize level:', req.jwt.authlvl)
+	console.log(req.jwt.username, 'is a', req.jwt.authlvl)
 
 	//res.send(`we got: ${token}`)
 	res.send(req.jwt)
 
 }
 
-// Authentication
-function authenticate(req, res) {
+// Login for jwt token
+function login(req, res) {
 
 	//console.log('head:', req.headers)
 	console.log('body:', req.body)
@@ -56,52 +59,62 @@ function authenticate(req, res) {
 		const user = req.body.username
 		const pass = req.body.password 
 
-	
-		/*
-		pool.query('SELECT * FROM users WHERE email = ?', email, (error, result) => {
+
+		pool.query('SELECT firstname,lastname,email,role,password FROM users WHERE username = ?', user, (error, result) => {
 			if (error) return console.log(`Error: ${error}`);
 			if (result.length) {
-				const{password, ...theRest} = result[0];
-				res.send(theRest);
+				const dbpass = result[0].password
+
+				bcrypt.compare(pass, dbpass, function(err, checksout) {
+					if(checksout) {
+						// Passwords match - create the jwt
+						const payload = {
+							username: user,
+							authlvl: result[0].role,
+							firstname: result[0].firstname,
+							lastname: result[0].lastname,
+							email: result[0].email
+				
+							//use this to skip looking up user creds/auth level in middleware
+							//add other stuff per docs:
+								
+						};
+
+						const token = jwt.sign(payload, conf.secret, {
+							expiresIn: 86400 // expires in 24 hours
+						});
+
+					
+						// return the informations to the client
+						res.json({
+							auth: 'success',
+							token: token
+						});
+
+					} else {
+						// Passwords don't match
+						return 	res.json({
+							auth: 'failure',
+							message: 'Invalid Login Credentials'
+						});
+
+					} 
+				});
+
+
 			}
 			else {
-				res.end(`No user with email ${email}`);
+				res.end('Invalid Login Credentials');
 			}
 		});
 
-		Select COUNT(*) from users where username and encrypt(pswd) = these 
-		if user found
-		*/
 
 
-		// create the jwt
-		const payload = {
-			username: 'billybob',
-			authlvl: 'user'
-			
-			//use this to skip looking up user creds/auth level in middleware
-			//add other stuff per docs:
-				
-		};
-
-		const token = jwt.sign(payload, conf.secret, {
-			expiresIn: 144000 // expires in 24 hours
-		});
-
-	
-		// return the informations to the client
-		res.json({
-			auth: 'success',
-			token: token
-		});
 		
 	}else{
-		res.json({auth:"failed"});
+		res.end('Invalid Login Credentials');
 		// might want to log failures
 	}
-
-
-
 
 }
 
