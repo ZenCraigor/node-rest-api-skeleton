@@ -2,6 +2,8 @@ const jwt  = require('jsonwebtoken');
 const conf = require('../util/config');
 const express = require('express')
 const router = express.Router();
+
+// Authorize route based on role
 const authRole = require('../util/auth_role');
 
 // Encryption lib for storing/verifying passwords
@@ -93,8 +95,6 @@ function login(req, res) {
 
 					} 
 				});
-
-
 			}
 			else {
 				res.end('Invalid Login Credentials');
@@ -107,10 +107,6 @@ function login(req, res) {
 	}
 
 }
-
-
-
-
 
 // Export the router
 module.exports = router

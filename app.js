@@ -2,7 +2,6 @@
 const express = require('express'),
 port = 3002,
 logger = require('morgan'),
-cors = require('cors'),
 authorize = require('./util/auth_jwt'),
 bodyParser = require('body-parser'),
 routes = require("./routes"),
@@ -24,11 +23,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/', routes.root);
 app.use('/users', routes.users);
 
-// cors 
-app.use(cors);
+
 
 // global error handling
-//app.use(errHandler);
+app.use(errHandler);
 
 
 // start the server
