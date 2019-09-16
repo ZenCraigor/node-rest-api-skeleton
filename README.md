@@ -2,27 +2,95 @@
 ## Node / Express / MySQL REST API Skeleton
 
 
-This is a project kick-starter for building a suite of role-based access REST APIs
+This is a project kick-starter for building a suite of role-based-access REST APIs
 
 ## Features
 
 ### All REST APIs - no UI
-	* Build a web site on top using almost any template engine
+  * Build a web site on top using almost any template engine
 
 ### User Admin
-	* Basic CRUD APIs
-	* Multiple routes for fetching user data by username, id, email, all, etc.
-	* Admin access only
+  * Basic CRUD APIs
+  * Multiple routes for fetching user data by username, id, email, all, etc.
+  * Admin access only
 
 ### Role-based access to APIs
-	* Sample roles are: admin, mgr, user. Create as needed
-	* Users may have multiple roles
-	* Routes may be restricted to one or multiple roles. Or none (like authenticating, or public APIs)
+  * Sample roles are: admin, mgr, user. Create as needed
+  * Users may have multiple roles
+  * Routes may be restricted to one or multiple roles. Or none (like authenticating, or public APIs)
 
 ### Security
-	* JSON Web Tokens (JWT)
-	* Successful authentication returns the JWT to be used in subsequent API calls
+  * JSON Web Tokens (JWT)
+  * Successful authentication returns the JWT to be used in subsequent API calls
 
+---
+
+## Getting Started
+### Flow
+  * Create a new user
+  * The user makes an API call to the __/authenticate__ endpoint. A successful authentication will return a JWT in the body of the response.
+  * The user replaces the __api-jwt__ header in the API examples with the one just received 
+  * If one of the user's roles is allowed by the specific API then it will run, otherwise respond with **Not Authorized**. Users and APIs may have multiple roles; as long as one of the user's roles is allowed by one of the API roles access is allowed.
+  * Role __admin__ has access to ALL APIs
+  * Role __anon__ is assigned to every non-authenticated user and will be allowed to access any API not role-restricted 
+
+### Routes and Access Roles
+  * Routes can be assigned zero or more Access Roles
+  * Some Examples:
+    * Public (zero roles)
+      * `router.post('/authenticate', login);`
+
+    * Single Role - Admin Access Only
+      * `router.get('/', authRole(['admin']), getAllUsers);`
+
+    * Single Role - Manager (Blocks usage by __user__ role, but __admin__ can access)
+      * `router.get('/', authRole(['mgr']), getUserByID);`
+
+    * Multiple Roles
+      * `router.get('/:username', authRole(['user', 'mgr']), getUserByUsername);`
+
+---
+
+## Installation
+> Node, npm, and MySQL should already be installed
+
+### Set up the code
+  * Clone this repo
+
+  * From the clone directory, install dependencies
+    ```
+    $ npm install
+    ```
+  * Create the database
+    * Run the MySQL script __/schema/users.sql__
+    * This creates the DB (you can rename this before running) and users table
+    * Create an "application user" in the DB with INSERT, UPDATE, DELETE, SELECT priviledges on this database
+    * Delete the schema directory as it is no longer needed
+
+  * Edit the MySQL connection script __/util/database.js__
+    * Change the database name if you changed it in the creation script
+    * Change the application user/pass to whatever you created in the DB 
+
+### Create an ADMIN user.
+Run the server
+  ```
+  $ node app.js
+  ```
+  * There is a default __admin__ user in the DB with a no-expiration JWT
+
+  * Create your own ADMIN account
+    * Change the Add User API call below to your preferred user credentials. 
+    * For __role__ put `admin` 
+
+  * Authenticate the newly created user to get a JWT 
+
+  * Change the __api-jwt__ header in the GetAllUsers API call and test -- should see the default __admin__ and the newly created user, both with *admin* role
+
+  * Using the new JWT, do the same with DeleteUserByID and delete the default __admin__ account as a security precaution
+
+### Ready to rock!
+
+---
 
 
 ## NEM-RAS API Reference
@@ -33,7 +101,7 @@ Method | Route | Functionality                        |
 |------|---------------------|------------------------|
 GET    | /                   |   Home Page            |
 POST   | /authenticate       |   Login                |
-GET    | /users/             |   get AllUsers         |
+GET    | /users/             |   get All Users         |
 GET    | /users/:username    |   get User By Username |
 GET    | /users/id/:id       |   get User By ID       |
 GET    | /users/email/:email |   get User By Email    |
@@ -45,11 +113,11 @@ DELETE | /users/:id          |   delete User By ID    |
 ### Descriptions
 
 #### Home Page
-* Returns a "Welcome to Our Site" message. Could be whatever makes sense.
+  * Returns a "Welcome to Our Site" message. Could be whatever makes sense.
 
 #### Login
-* Returns a JWT on success. 
-> The JWT must be added to a custom __api-jwt__ header for all API calls which are not 'public' such as the routes __/__ and __/authenticate__ 
+  * Returns a JWT on success. 
+> The JWT must be added to a custom __api-jwt__ header for all API calls which are not 'public' ( such as the routes __/__ and __/authenticate__ )
 
 ##### Fields Sent
 Field | Value in the example
@@ -79,7 +147,7 @@ curl -X GET \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
   -H 'Host: localhost:3002' \
-  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNyYWlnIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiQ3JhaWciLCJsYXN0bmFtZSI6Ik1jRWx3ZWUiLCJlbWFpbCI6ImNyYWlnbWNlbHdlZUBnbWFpbC5jb20iLCJpYXQiOjE1Njg1ODg5MDQsImV4cCI6MTU2ODY3NTMwNH0.hhT6UuvD7PI15fBRc_GDCnn4O8O-aE0S7nqIxg_Lzas' \
+  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiREVMRVRFIiwibGFzdG5hbWUiOiJNRSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE1Njg2NzM0NzYsImV4cCI6MjQzMjU4NzA3Nn0.uz0uKgpfFgSDX42QDTw131MR89vMp22Nv3MxROi37ws' \
 ```
 
 #### Get User By Username
@@ -91,7 +159,7 @@ curl -X GET \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
   -H 'Host: localhost:3002' \
-  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNyYWlnIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiQ3JhaWciLCJsYXN0bmFtZSI6Ik1jRWx3ZWUiLCJlbWFpbCI6ImNyYWlnbWNlbHdlZUBnbWFpbC5jb20iLCJpYXQiOjE1Njg1ODg5MDQsImV4cCI6MTU2ODY3NTMwNH0.hhT6UuvD7PI15fBRc_GDCnn4O8O-aE0S7nqIxg_Lzas' \
+  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiREVMRVRFIiwibGFzdG5hbWUiOiJNRSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE1Njg2NzM0NzYsImV4cCI6MjQzMjU4NzA3Nn0.uz0uKgpfFgSDX42QDTw131MR89vMp22Nv3MxROi37ws' \
 ```
 
 #### Get User By ID
@@ -103,7 +171,7 @@ curl -X GET \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
   -H 'Host: localhost:3002' \
-  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNyYWlnIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiQ3JhaWciLCJsYXN0bmFtZSI6Ik1jRWx3ZWUiLCJlbWFpbCI6ImNyYWlnbWNlbHdlZUBnbWFpbC5jb20iLCJpYXQiOjE1Njg1ODg5MDQsImV4cCI6MTU2ODY3NTMwNH0.hhT6UuvD7PI15fBRc_GDCnn4O8O-aE0S7nqIxg_Lzas' \
+  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiREVMRVRFIiwibGFzdG5hbWUiOiJNRSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE1Njg2NzM0NzYsImV4cCI6MjQzMjU4NzA3Nn0.uz0uKgpfFgSDX42QDTw131MR89vMp22Nv3MxROi37ws' \
 ```
 
 
@@ -116,7 +184,7 @@ curl -X GET \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
   -H 'Host: localhost:3002' \
-  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNyYWlnIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiQ3JhaWciLCJsYXN0bmFtZSI6Ik1jRWx3ZWUiLCJlbWFpbCI6ImNyYWlnbWNlbHdlZUBnbWFpbC5jb20iLCJpYXQiOjE1Njg1ODg5MDQsImV4cCI6MTU2ODY3NTMwNH0.hhT6UuvD7PI15fBRc_GDCnn4O8O-aE0S7nqIxg_Lzas' \
+  -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiREVMRVRFIiwibGFzdG5hbWUiOiJNRSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE1Njg2NzM0NzYsImV4cCI6MjQzMjU4NzA3Nn0.uz0uKgpfFgSDX42QDTw131MR89vMp22Nv3MxROi37ws' \
 ```
 
 
@@ -149,29 +217,3 @@ curl -X POST \
   -H 'Host: localhost:3002' \
   -d 'username=bobbybob&firstname=Robert&lastname=Roberts&email=bobbybob%40example.com&role=%5B'\''user'\''%2C%20'\''mgr'\''%5D&password=asdfasdf'
 ```
-
-## Installation
-> Node, npm, and MySQL should already be installed
-
-### Clone this repo
-
-### npm initialize (?????)
-
-### edit MySQL script
-...../schema/users.sql....run it.... you can delete the schema directory as it is no longer needed.
-
-### edit the MySQL connection script
-/util/database.js ... fields to match schema script....
-
-### Create an ADMIN user.
-
-Run the server
-```
-node app.js
-```
-
-* Default user/pass is admin admin
-* authenticate - 
-* Change the Add User cURL call above to your preferred user credentials. For __role__ put `admin`. Change the __api-jwt__ header to the JWT from authenticating
-
-
