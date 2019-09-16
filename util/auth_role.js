@@ -1,6 +1,5 @@
 
-
-module.exports = function (roles) {
+function authRole(roles) {
 	return function (req, res, next) {
 		// roles param can be a single role string ('user') 
 		// or an array of roles (['user', 'mgr'])
@@ -17,3 +16,5 @@ module.exports = function (roles) {
 		next()
 	}
 }
+
+module.exports = authRole;

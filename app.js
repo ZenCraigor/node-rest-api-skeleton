@@ -23,8 +23,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/', routes.root);
 app.use('/users', routes.users);
 
-
-
 // global error handling
 app.use(errHandler);
 

@@ -6,8 +6,6 @@ CREATE TABLE `users` (
   `email` varchar(50) NOT NULL DEFAULT '',
   `role` varchar(20) NOT NULL DEFAULT 'user',
   `password` varchar(100) NOT NULL DEFAULT '',
-  `apikey` varchar(100) NOT NULL DEFAULT '',
-  `apikey_exp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_email` (`email`),
   UNIQUE KEY `uniq_username` (`username`)
