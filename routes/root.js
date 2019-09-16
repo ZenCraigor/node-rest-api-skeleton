@@ -23,13 +23,11 @@ router.post('/authenticate', login);
 
 // Home page -- /
 function getHomePage(req, res) {
-	var date = new Date()
-	var now = date.getTime()
-	res.send('Node.js and Express REST API - ' + now)
+	res.send('Welcome to NEM-RAS, a Node / Express / MySQL REST API Skeleton');
 }
 
 
-//TEST
+//TEST - Shows the values of the JWT presented if verified
 function showAuth(req, res) {
 	const token = req.headers['api-jwt'];
 	if (token) {
@@ -37,15 +35,13 @@ function showAuth(req, res) {
 			if (err) {
 				return res.json({ success: false, message: 'Failed to authenticate token.', error: err });    
 			} else {
-				// if everything is good, save to request for use in other routes
 				req.jwt = decoded;    
 			}
 		})
 	
-		//res.send(`we got: ${token}`)
 		res.send(req.jwt)
 	} else {
-		res.send('No Token')
+		res.send('No JWT Token')
 	}
 }
 
@@ -76,20 +72,19 @@ function login(req, res) {
 						};
 
 						const token = jwt.sign(payload, conf.secret, {
-							expiresIn: 86400 // expires in 24 hours
+							expiresIn: "7d" // expires in 7 days
 						});
 
 					
 						// return the informations to the client
 						res.json({
 							auth: 'success',
-							token: token
+							"api-jwt": token
 						});
 
 					} else {
 						// Passwords don't match
 						return 	res.json({
-							auth: 'failure',
 							message: 'Invalid Login Credentials'
 						});
 
