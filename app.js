@@ -9,7 +9,7 @@ errHandler = require('./util/errors');
 
 const app = express();
 
-// logging
+// color coded logging
 app.use(logger('dev'));
 
 // authorize -- checks for JWT, sets role and if authorized, user details
@@ -30,6 +30,5 @@ app.use(errHandler);
 // start the server
 const server = app.listen(port, (error) => {
 	if (error) return console.log(`Error: ${error}`);
-	//console.log('ENV: ' + JSON.stringify(process.env, null, 2))
 	console.log(`Server listening on port ${server.address().port}`);
 });

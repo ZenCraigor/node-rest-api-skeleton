@@ -51,8 +51,9 @@ This is a project kick-starter for building a suite of role-based-access REST AP
 
 ---
 
+
 ## Installation
-> Node, npm, and MySQL should already be installed
+> Node 10+ and MySQL (MariaDB) should already be installed
 
 ### Set up the code
   * Clone this repo
@@ -81,6 +82,7 @@ Run the server
   * Create your own ADMIN account
     * Change the Add User API call below to your preferred user credentials. 
     * For __role__ put `admin` 
+    * Make sure the Content-length header and actual content length are the same
 
   * Authenticate the newly created user to get a JWT 
 
@@ -125,6 +127,8 @@ Field | Value in the example
 username   | bobbybob
 password   | asdfasdf
 
+> Make sure the Content-Length is __exactly the same__ as the actual length (-d flag field). __username=bobbybob&password=asdfasdf__ is 35. If these lengths don't match the call will fail.
+
 ```cURL
  curl -X POST \
   http://localhost:3002/authenticate \
@@ -132,7 +136,7 @@ password   | asdfasdf
   -H 'Accept-Encoding: gzip, deflate' \
   -H 'Cache-Control: no-cache' \
   -H 'Connection: keep-alive' \
-  -H 'Content-Length: 32' \
+  -H 'Content-Length: 35' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -H 'Host: localhost:3002' \
   -d 'username=bobbybob&password=asdfasdf'
@@ -215,5 +219,6 @@ curl -X POST \
   -H 'Content-Length: 139' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -H 'Host: localhost:3002' \
+   -H 'api-jwt: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZmlyc3RuYW1lIjoiREVMRVRFIiwibGFzdG5hbWUiOiJNRSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE1Njg2NzM0NzYsImV4cCI6MjQzMjU4NzA3Nn0.uz0uKgpfFgSDX42QDTw131MR89vMp22Nv3MxROi37ws'
   -d 'username=bobbybob&firstname=Robert&lastname=Roberts&email=bobbybob%40example.com&role=%5B'\''user'\''%2C%20'\''mgr'\''%5D&password=asdfasdf'
 ```

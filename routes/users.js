@@ -84,27 +84,19 @@ function getUserByEmail(req, res) {
 
 // Add a new user
 function addUser(req, res) {
-	console.log('raw req:', req.body)
-
-	bcrypt.hash(req.body.password, 10, function(err, hash) {
+	bcrypt.hash(req.body.password, 12, function(err, hash) {
 		// change req password to hashed one
 		req.body.password = hash
 	
 		// add user using req.body block
 		pool.query('INSERT INTO users SET ?', req.body, (error, result) => {
 			if (error) {
-				res.end(`Query Failed: ${error}`)
+				res.end(`Query Failed: ${error}`);
 				return console.log(`Error: ${error}`);
 			}
-			res.status(201).send(`User added with ID: ${result.insertId} and Hash: ${hash}`)
-
+			res.status(201).send(`User added with ID: ${result.insertId} and Hash: ${hash}`);
 		});
-
 	});
-
-
-	
-
 }
 
 // Update an existing user
