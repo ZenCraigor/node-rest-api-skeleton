@@ -13,7 +13,7 @@ function authorize(req, res, next) {
 			if (err) {
 				return res.json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
-				// save to request for use in other routes
+				// save to req for use in other routes
 				req.jwt = decoded;
 				next();
 			}

@@ -31,30 +31,30 @@ function getHomePage(req, res) {
 function showAuth(req, res) {
 	const token = req.headers['api-jwt'];
 	if (token) {
-		jwt.verify(token, conf.secret, (err, decoded) => {      
+		jwt.verify(token, conf.secret, (err, decoded) => {
 			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.', error: err });    
+				return res.json({ success: false, message: 'Failed to authenticate token.', error: err });
 			} else {
-				req.jwt = decoded;    
+				req.jwt = decoded;
 			}
 		})
-	
-		res.send(req.jwt)
+
+		res.send(req.jwt);
 	} else {
-		res.send('No JWT Token')
+		res.send('No JWT Token');
 	}
 }
 
 // Login for jwt token
 function login(req, res) {
 	if(req.body.username && req.body.password) {
-		const user = req.body.username
-		const pass = req.body.password 
+		const user = req.body.username;
+		const pass = req.body.password;
 
 		pool.query('SELECT firstname,lastname,email,role,password FROM users WHERE username = ?', user, (error, result) => {
 			if (error) return console.log(`Error: ${error}`);
 			if (result.length) {
-				const dbpass = result[0].password
+				const dbpass = result[0].password;
 
 				bcrypt.compare(pass, dbpass, function(err, checksout) {
 					if(checksout) {
@@ -65,17 +65,12 @@ function login(req, res) {
 							firstname: result[0].firstname,
 							lastname: result[0].lastname,
 							email: result[0].email
-				
-							//use this to skip looking up user creds/auth level in middleware
-							//add other stuff per docs:
-								
 						};
 
 						const token = jwt.sign(payload, conf.secret, {
 							expiresIn: "7d" // expires in 7 days
 						});
 
-					
 						// return the informations to the client
 						res.json({
 							auth: 'success',
@@ -84,18 +79,15 @@ function login(req, res) {
 
 					} else {
 						// Passwords don't match
-						return 	res.json({
-							message: 'Invalid Login Credentials'
-						});
-
-					} 
+						return 	res.json({ message: 'Invalid Login Credentials' });
+					}
 				});
 			}
 			else {
 				res.end('Invalid Login Credentials');
 			}
 		});
-		
+
 	}else{
 		res.end('Invalid Login Credentials');
 		// might want to log failures
@@ -104,4 +96,4 @@ function login(req, res) {
 }
 
 // Export the router
-module.exports = router
+module.exports = router;
