@@ -95,7 +95,7 @@ Run the server
 ---
 
 
-## NEM-RAS API Reference
+## API Reference
 
 ### ROUTES
 
