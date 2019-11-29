@@ -22,8 +22,8 @@ router.delete('/:id', authRole(['admin']), deleteUserByID);
 // ROUTE DEFS
 
 // Display all users
-function getAllUsers(req, res) {
-	pool.query('SELECT * FROM users', (error, result) => {
+async function getAllUsers(req, res) {
+	await pool.query('SELECT * FROM users', (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 
 		// remove password field from return values
@@ -38,9 +38,9 @@ function getAllUsers(req, res) {
 }
 
 // Display a single user by ID
-function getUserByID(req, res) {
+async function getUserByID(req, res) {
 	const id = req.params.id;
-	pool.query('SELECT * FROM users WHERE id = ?', id, (error, result) => {
+	await pool.query('SELECT * FROM users WHERE id = ?', id, (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 		if (result.length) {
 			const{password, ...theRest} = result[0];
@@ -53,9 +53,9 @@ function getUserByID(req, res) {
 }
 
 // Display a single user by username
-function getUserByUsername(req, res) {
+async function getUserByUsername(req, res) {
 	const username = req.params.username;
-	pool.query('SELECT * FROM users WHERE username = ?', username, (error, result) => {
+	await pool.query('SELECT * FROM users WHERE username = ?', username, (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 		if (result.length) {
 			const{password, ...theRest} = result[0];
@@ -68,9 +68,9 @@ function getUserByUsername(req, res) {
 }
 
 // Display a single user by email address
-function getUserByEmail(req, res) {
+async function getUserByEmail(req, res) {
 	const email = req.params.email;
-	pool.query('SELECT * FROM users WHERE email = ?', email, (error, result) => {
+	await pool.query('SELECT * FROM users WHERE email = ?', email, (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 		if (result.length) {
 			const{password, ...theRest} = result[0];
@@ -83,8 +83,8 @@ function getUserByEmail(req, res) {
 }
 
 // Add a new user
-function addUser(req, res) {
-	bcrypt.hash(req.body.password, 12, function(err, hash) {
+async function addUser(req, res) {
+	await bcrypt.hash(req.body.password, 12, function(err, hash) {
 		// change req password to hashed one
 		req.body.password = hash
 	
@@ -100,10 +100,10 @@ function addUser(req, res) {
 }
 
 // Update an existing user
-function updateUserByID(req, res) {
+async function updateUserByID(req, res) {
 	const id = req.params.id;
 
-	pool.query('UPDATE users SET ? WHERE id = ?', [req.body, id], (error, result) => {
+	await pool.query('UPDATE users SET ? WHERE id = ?', [req.body, id], (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 		res.send('User updated successfully.');
 	});
@@ -111,10 +111,10 @@ function updateUserByID(req, res) {
 
 
 // Delete a user by ID
-function deleteUserByID(req, res) {
+async function deleteUserByID(req, res) {
 	const id = req.params.id;
 
-	pool.query('DELETE FROM users WHERE id = ?', id, (error, result) => {
+	await pool.query('DELETE FROM users WHERE id = ?', id, (error, result) => {
 		if (error) return console.log(`Error: ${error}`);
 		res.send('User deleted.');
 	});

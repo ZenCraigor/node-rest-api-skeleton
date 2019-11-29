@@ -28,10 +28,10 @@ function getHomePage(req, res) {
 
 
 //TEST - Shows the values of the JWT presented if verified
-function showAuth(req, res) {
+async function showAuth(req, res) {
 	const token = req.headers['api-jwt'];
 	if (token) {
-		jwt.verify(token, conf.secret, (err, decoded) => {
+		await jwt.verify(token, conf.secret, (err, decoded) => {
 			if (err) {
 				return res.json({ success: false, message: 'Failed to authenticate token.', error: err });
 			} else {
@@ -46,12 +46,12 @@ function showAuth(req, res) {
 }
 
 // Login for jwt token
-function login(req, res) {
+async function login(req, res) {
 	if(req.body.username && req.body.password) {
 		const user = req.body.username;
 		const pass = req.body.password;
 
-		pool.query('SELECT firstname,lastname,email,role,password FROM users WHERE username = ?', user, (error, result) => {
+		await pool.query('SELECT firstname,lastname,email,role,password FROM users WHERE username = ?', user, (error, result) => {
 			if (error) return console.log(`Error: ${error}`);
 			if (result.length) {
 				const dbpass = result[0].password;
